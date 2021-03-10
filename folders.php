@@ -57,7 +57,7 @@ echo "<div class='container'>
 		<div class='panel-body'>
               didn't work...
             </div>
-		<div class='col-md-5'></div>	
+		<div class='col-md-5'</div>	
 		</div>
 	</div>";
 die;
