@@ -41,6 +41,7 @@ $hostname = $_POST["folder"];
 //Open the connection
 $connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
 
+
 //Grab all the emails inside the inbox
 $emails = imap_search($connection,$messagestatus);
 
@@ -58,8 +59,9 @@ if($emails) {
   
   //loop through every email in the inbox
   foreach($emails as $email_number) {
-    
-	//get some header info for subject, from, and date.. imap_fetch_overview (which was in the example I used for this) just returns true or false
+
+
+      //get some header info for subject, from, and date.. imap_fetch_overview (which was in the example I used for this) just returns true or false
     $headerinfo = imap_headerinfo($connection, $email_number);
 
 
@@ -76,40 +78,59 @@ if($emails) {
 	$date = $headerinfo->{'date'};
 	$fmessage = quoted_printable_decode($message);
 
-	echo <<<END
+//    if(mysqli_query("select exists ( select * from emails where sender=from, and  subject=$subject, and date=$date, and message=$fmessage, and recive=$tomess)") ){
+//        echo "exist";
+//    }
 
-	<div class='container'>
-	<div class='col-md-6'>
-	<h4>Inserting:<br><br>
-	<h4>Sender:</h4>  $from <br><br>
-	<h4>Subject:</h4> $subject <br><br>
-	<h4>Date:</h4> $date <br><br>
-	<h4>Message:</h4> $fmessage <br><br>
-	<h4>To:</h4> $tomess <br><br>
-	</div></div>
+      //shani shalel add this
+      imap_delete($connection, $email_number);
+      $check = imap_mailboxmsginfo($connection);
+      echo "Messages after  delete: " . $check->Nmsgs . "<br />\n";
+
+
+
+
+        echo <<<END
+        <div class='container'>
+        <div class='col-md-6'>
+        <h4>Inserting:<br><br>
+        <h4>Sender:</h4>  $from <br><br>
+        <h4>Subject:</h4> $subject <br><br>
+        <h4>Date:</h4> $date <br><br>
+        <h4>Message:</h4> $fmessage <br><br>
+        <h4>To:</h4> $tomess <br><br>
+        </div></div>
 END;
 
-/* Prepared statement, stage 1: prepare */
-//if (!($stmt = $mysqli->prepare("INSERT INTO emails (sender, subject, date, message) VALUES (?,?,?,?)"))) {
-//    echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
-//}
-if (!($stmt = $mysqli->prepare("INSERT INTO emails (sender, subject, date, message, recive) VALUES (?,?,?,?,?)"))) {
-     echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    if (!($stmt = $mysqli->prepare("INSERT INTO emails (sender, subject, date, message, recive) VALUES (?,?,?,?,?)"))) {
+         echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    }
+
+// if (!($stmt = $mysqli->prepare("INSERT INTO emails (sender, subject, date, message, recive) Select VALUES (?,?,?,?,?) where not exists (select * from emails Where sender=?, and subject=?, and date=?, and message=?, and recive=? )"))) {
+//
+//      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+// }
+
+    if (!$stmt->bind_param("sssss", $from, $subject, $date, $fmessage, $tomess)) {
+        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+    }
+
+
+  }
+
+
 }
 
-// if (!$stmt->bind_param("ssss", $from, $subject, $date, $fmessage)) {
-//     echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-//}
 
-if (!$stmt->bind_param("sssss", $from, $subject, $date, $fmessage, $tomess)) {
-    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-}
+imap_expunge($connection);
 
-if (!$stmt->execute()) {
-    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-}
-  }  
-} 
+$check = imap_mailboxmsginfo($connection);
+echo "Messages after expunge: " . $check->Nmsgs . "<br />\n";
+
 
 // close the connection
 imap_close($connection);
