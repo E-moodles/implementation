@@ -23,10 +23,16 @@
 ini_set('display_errors', 1);
 session_start();
 session_start();
+
+$mysqli3=mysqli_connect('127.0.0.1', 'root', 'shani3003', 'moodle1', '3306');
+
+
 //connect to mysql
 $mysqli  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'stam', '3306');
 //connect to mysql for students details
-$mysqli2  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'stam', '3306');
+//$mysqli2  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'stam', '3306');
+
+//connect to moodle1
 
 
 //Your gmail email address and password
@@ -54,17 +60,35 @@ $totalemails = imap_num_msg($connection);
 echo "<div class='container'>
 	
 	<div class='col-md-6'><h1 class='bg-primary'>Total Emails: " . $totalemails . "</h1></div></div>";
+
+$result=mysqli_query($mysqli3,
+    "CREATE TABLE  IF NOT EXISTS mdl_emoodles_user_details (
+uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled TEXT, courseid TEXT, coursename TEXT);");
+
+$result=mysqli_query($mysqli3,
+    "    INSERT INTO mdl_emoodles_user_details
+    SELECT CONCAT(u.id, '_', c.id) AS uniqueid,
+        u.id AS userid,
+        u.firstname,
+        u.lastname,
+        u.email,
+        MAX(CASE WHEN ue.id IS NULL THEN '' ELSE 'X' END) AS enrolled,
+        c.id AS courseid,
+        c.fullname AS coursename
+    FROM mdl_user u
+    CROSS JOIN mdl_course c
+    LEFT JOIN mdl_enrol e ON e.courseid = c.id
+    LEFT JOIN mdl_user_enrolments ue ON u.id = ue.userid AND ue.enrolid = e.id
+    WHERE u.deleted = 0
+    GROUP BY u.id, c.id");
   
 if($emails) {
 
-
-  
   //sort emails by newest first
   rsort($emails);
 
   //loop through every email in the inbox
   foreach($emails as $email_number) {
-
 
       //get some header info for subject, from, and date.. imap_fetch_overview (which was in the example I used for this) just returns true or false
     $headerinfo = imap_headerinfo($connection, $email_number);
@@ -82,8 +106,10 @@ if($emails) {
 	$date = $headerinfo->{'date'};
 	$fmessage = quoted_printable_decode($message);
 
+
 //if the emails is in the students details table
-	$result=mysqli_query($mysqli,"select * from students_details where email='$from'");
+	$result=mysqli_query($mysqli, "select * from students_details where email='$from'");
+
 	if ($result->num_rows>0){
 
         echo <<<END
@@ -101,7 +127,6 @@ END;
         if (!($stmt = $mysqli->prepare("INSERT INTO emails (sender, subject, date, message, recive) VALUES (?,?,?,?,?)"))) {
             echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
         }
-
 
         if (!$stmt->bind_param("sssss", $from, $subject, $date, $fmessage, $tomess)) {
             echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
