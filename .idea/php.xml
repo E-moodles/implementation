@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/doctrine/annotations" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/composer" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/squizlabs/php_codesniffer" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/dealerdirect/phpcodesniffer-composer-installer" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpcompatibility/php-compatibility" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/yoast/phpunit-polyfills" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpspec/prophecy" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/PHPMailer/vendor/phpunit/php-timer" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="5.5.0" />
+</project>
