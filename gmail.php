@@ -51,7 +51,7 @@ $hostname = isset($_POST["folder"]);
 
 //Open the connection
 #$connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
-$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodles12@gmail.com','') or die('Cannot connect to Gmail: ' . imap_last_error());
+$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodlesmessage@gmail.com','moodle1234') or die('Cannot connect to Gmail: ' . imap_last_error());
 
 
 //Grab all the emails inside the inbox
@@ -93,8 +93,8 @@ if($emails) {
 
 
         $fromaddr = $headerinfo->from[0]->mailbox . "@" . $headerinfo->from[0]->host;
-
-
+        $tomess=$headerinfo->{'toaddress'};
+        $from = $headerinfo->{'fromaddress'};
         //$from = $headerinfo->{'from[2]'};
         $subject = $headerinfo->{'subject'};
         $date = $headerinfo->{'date'};
@@ -105,17 +105,42 @@ if($emails) {
 
         $i=strpos($tomess,'@');//location of @
         $j=strpos($tomess,'+');//location of +
+        $check="isn't enter anywere";
         if ($j==false){//there isn't + in the email
             //send mail to the address that we gets and tells the format isn't right
-            $msg = "The address you entered isn't right \n , please look again at the format that the email address should be . ";
-            $msg = wordwrap($msg);
-            mail($fromaddr,"E-moodles Error",$msg);
-            $check="email isn't good";
+            $mail=new PHPMailer();
+            $mail->IsSMTP(); // enable SMTP
+            $mail->SMTPDebug = 1;  //Enable verbose debug output
+            // $mail->isSMTP();                                            //Send using SMTP
+            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+            $mail->Password = 'moodle1234';                               //SMTP password
+            $mail->Port = 465;
+            $mail->SMTPSecure = 'ssl';
+
+
+            $mail->AddAddress("shanishalel89@gmail.com");
+
+            $mail->SetFrom("emoodlesmessage@gmail.com");
+            $mail->Subject = 'E-Moodle Syntax error mail ';
+            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
+            $mail->isHTML(true);
+
+            try {
+                if ($mail->Send()) {
+                    $check = "email send";
+                } else {
+                    $check = "email isn't send";
+                }
+            } catch (Exception $e) {
+            }
         }else{
             $j++;
             $z=$i-$j;
             $num_course=substr($tomess,$j,$z);
         }
+
 
 
 
@@ -152,7 +177,6 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
 
 
         //if ($result->num_rows>0){
-        print ("hereeee");
 
         $var = html_entity_decode($message);
 
@@ -160,11 +184,6 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
         $resultt=mysqli_query($mysqli4,"select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
         $row = mysqli_fetch_array($resultt);
         $userid = $row[0];
-
-
-
-
-
 
 
         echo <<<END
@@ -179,17 +198,11 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
         </div></div>
 END;
 
-
-
-
         $id1=mysqli_query($mysqli4,"SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
         $d2=mysqli_fetch_array($id1);
         $id = $d2['MAX']+1;
 
-
-
         $timestamp = strtotime($date);
-
 
         if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified) VALUES ($id, 2, 1, ?, $id, $userid, 0, $timestamp, 2)"))) {
             echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
@@ -220,7 +233,6 @@ END;
         if (!$stmt->execute()) {
             echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
         }
-
 
 
 

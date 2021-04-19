@@ -240,7 +240,6 @@ END;
 
 
 
-
         //shani shalel add this
         imap_delete($connection, $email_number);
         $check = imap_mailboxmsginfo($connection);
