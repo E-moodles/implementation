@@ -1,11 +1,6 @@
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-require '../vendor/autoload.php';
-
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,9 +17,19 @@ require '../vendor/autoload.php';
 
     <!-- Custom styles for this template -->
     <link href="theme.css" rel="stylesheet">
-</head>
-<body role="document">
+  </head>
+  <body role="document">
 <?php
+
+//
+//use PHPMailer\PHPMailer\PHPMailer;
+//use PHPMailer\PHPMailer\Exception;
+//use PHPMailer\PHPMailer\SMTP;
+//
+//
+//require 'vendor/autoload.php';
+
+
 ini_set('display_errors', 1);
 session_start();
 session_start();
@@ -51,7 +56,7 @@ $hostname = isset($_POST["folder"]);
 
 //Open the connection
 #$connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
-$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodlesmessage@gmail.com','moodle1234') or die('Cannot connect to Gmail: ' . imap_last_error());
+$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodles12@gmail.com','shani1998') or die('Cannot connect to Gmail: ' . imap_last_error());
 
 
 //Grab all the emails inside the inbox
@@ -59,32 +64,32 @@ $emails = imap_search($connection,$messagestatus);
 
 //number of emails in the inbox
 $totalemails = imap_num_msg($connection);
-
+  
 echo "<div class='container'>
 	
 	<div class='col-md-6'><h1 class='bg-primary'>Total Emails: " . $totalemails . "</h1></div></div>";
-
+  
 if($emails) {
 
+  
+  //sort emails by newest first
+  rsort($emails);
 
-    //sort emails by newest first
-    rsort($emails);
-
-    //loop through every email in the inbox
-    foreach($emails as $email_number) {
+  //loop through every email in the inbox
+  foreach($emails as $email_number) {
 
 
-        //get some header info for subject, from, and date.. imap_fetch_overview (which was in the example I used for this) just returns true or false
-        $headerinfo = imap_headerinfo($connection, $email_number);
+      //get some header info for subject, from, and date.. imap_fetch_overview (which was in the example I used for this) just returns true or false
+    $headerinfo = imap_headerinfo($connection, $email_number);
 
-        //Because attachments can be problematic this logic will default to skipping the attachments
-        $message = imap_fetchbody($connection,$email_number,1.1);
-        if ($message == "") { // no attachments is the usual cause of this
-            $message = imap_fetchbody($connection, $email_number, 1);
-        }
+    //Because attachments can be problematic this logic will default to skipping the attachments
+    $message = imap_fetchbody($connection,$email_number,1.1);
+         if ($message == "") { // no attachments is the usual cause of this
+          $message = imap_fetchbody($connection, $email_number, 1);
+    }
 
-        //shani shalel add :
-        $tomess=$headerinfo->{'toaddress'};
+    //shani shalel add :
+    $tomess=$headerinfo->{'toaddress'};
 
 //      $from = $overview[0]->from;
 //
@@ -92,66 +97,69 @@ if($emails) {
 //      $fromaddress = $header->from[0]->mailbox . "@" . $header->from[0]->host;
 
 
-        $fromaddr = $headerinfo->from[0]->mailbox . "@" . $headerinfo->from[0]->host;
-        $tomess=$headerinfo->{'toaddress'};
-        $from = $headerinfo->{'fromaddress'};
-        //$from = $headerinfo->{'from[2]'};
-        $subject = $headerinfo->{'subject'};
-        $date = $headerinfo->{'date'};
-        $fmessage = quoted_printable_decode($message);
+      $fromaddr = $headerinfo->from[0]->mailbox . "@" . $headerinfo->from[0]->host;
+
+
+      //$from = $headerinfo->{'from[2]'};
+	$subject = $headerinfo->{'subject'};
+	$date = $headerinfo->{'date'};
+	$fmessage = quoted_printable_decode($message);
 
 
 //getting the number of the course
 
-        $i=strpos($tomess,'@');//location of @
-        $j=strpos($tomess,'+');//location of +
-        $check="isn't enter anywere";
-        if ($j==false){//there isn't + in the email
-            //send mail to the address that we gets and tells the format isn't right
-            $mail=new PHPMailer();
-            $mail->IsSMTP(); // enable SMTP
-            $mail->SMTPDebug = 1;  //Enable verbose debug output
-            // $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-            $mail->Password = 'moodle1234';                               //SMTP password
-            $mail->Port = 465;
-            $mail->SMTPSecure = 'ssl';
+
+      $i=strpos($tomess,'@');//location of @
+      $j=strpos($tomess,'+');//location of +
+      $check="isn't enter anywere";
+      if ($j==false){//there isn't + in the email
+          //send mail to the address that we gets and tells the format isn't right
+          $mail=new PHPMailer();
+          $mail->IsSMTP(); // enable SMTP
+          $mail->SMTPDebug = 1;  //Enable verbose debug output
+          // $mail->isSMTP();                                            //Send using SMTP
+          $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+          $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+          $mail->Username = 'emoodles12@gmail.com';                     //SMTP username
+          $mail->Password = 'shani1998';                               //SMTP password
+          $mail->Port = 465;
+          $mail->SMTPSecure = 'ssl';
 
 
-            $mail->AddAddress("shanishalel89@gmail.com");
+          $mail->AddAddress("shanihayik@gmail.com");
 
-            $mail->SetFrom("emoodlesmessage@gmail.com");
-            $mail->Subject = 'E-Moodle Syntax error mail ';
-            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
-            $mail->isHTML(true);
+          $mail->SetFrom("emoodles12@gmail.com");
+          $mail->Subject = 'E-Moodle Syntax error mail ';
+          $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
+          $mail->isHTML(true);
 
-            try {
-                if ($mail->Send()) {
-                    $check = "email send";
-                } else {
-                    $check = "email isn't send";
-                }
-            } catch (Exception $e) {
-            }
-        }else{
-            $j++;
-            $z=$i-$j;
-            $num_course=substr($tomess,$j,$z);
-        }
+          try {
+              if ($mail->Send()) {
+                  $check = "email send";
+              } else {
+                  $check = "email isn't send";
+              }
+          } catch (Exception $e) {
+          }
+      }else{
+          $j++;
+          $z=$i-$j;
+          $num_course=substr($tomess,$j,$z);
+      }
+
+
 
 
 
 
 
 //if the emails is in the students details table
-        $result=mysqli_query($mysqli3,
-            "CREATE TABLE  IF NOT EXISTS mdl_emoodles_user_details (
+      $result=mysqli_query($mysqli3,
+   "CREATE TABLE  IF NOT EXISTS mdl_emoodles_user_details (
 uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled TEXT, courseid TEXT, coursename TEXT);");
 
-        $result=mysqli_query($mysqli3,
-            "    INSERT INTO mdl_emoodles_user_details
+      $result=mysqli_query($mysqli3,
+          "    INSERT INTO mdl_emoodles_user_details
     SELECT CONCAT(u.id, '_', c.id) AS uniqueid,
         u.id AS userid,
         u.firstname,
@@ -170,23 +178,29 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
 
 
 
-        //$result=mysqli_query($mysqli3,"select * from mdl_emoodles_user_details where email='$from'");
+      //$result=mysqli_query($mysqli3,"select * from mdl_emoodles_user_details where email='$from'");
 
 
 
 
 
-        //if ($result->num_rows>0){
+	//if ($result->num_rows>0){
+	    print ("hereeee");
 
-        $var = html_entity_decode($message);
-
-
-        $resultt=mysqli_query($mysqli4,"select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
-        $row = mysqli_fetch_array($resultt);
-        $userid = $row[0];
+	    $var = html_entity_decode($message);
 
 
-        echo <<<END
+      $resultt=mysqli_query($mysqli4,"select userid from mdl_emoodles_user_details where email='$fromaddr' "); //and courseid = '$num_course'
+      $row = mysqli_fetch_array($resultt);
+      $userid = $row[0];
+
+
+
+
+
+
+
+      echo <<<END
         <div class='container'>
         <div class='col-md-6'>
         <h4>Inserting:<br><br>
@@ -195,53 +209,63 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
         <h4>Date:</h4> $date <br><br>
         <h4>Sender:</h4> $fromaddr <br><br>
         <h4>ID:</h4> $userid <br><br>
+
+
+
         </div></div>
 END;
 
-        $id1=mysqli_query($mysqli4,"SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
-        $d2=mysqli_fetch_array($id1);
-        $id = $d2['MAX']+1;
 
-        $timestamp = strtotime($date);
+
+
+      $id1=mysqli_query($mysqli4,"SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
+      $d2=mysqli_fetch_array($id1);
+      $id = $d2['MAX']+1;
+
+
+
+      $timestamp = strtotime($date);
+
 
         if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified) VALUES ($id, 2, 1, ?, $id, $userid, 0, $timestamp, 2)"))) {
             echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
         }
 
 
-        if (!$stmt->bind_param("s",  $subject)) {
-            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-        }
+      if (!$stmt->bind_param("s",  $subject)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      }
 
-        if (!$stmt->execute()) {
-            echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-        }
+      if (!$stmt->execute()) {
+          echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      }
 
-        $var1 = $fmessage;
-        $var2 = '<p>' + $var1 + '</p>';
+      $var1 = $fmessage;
+      $var2 = '<p>' + $var1 + '</p>';
 
-        if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat) VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
-            echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
-        }
-
-
-
-        if (!$stmt->bind_param("ss",   $subject, $fmessage)) {
-            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-        }
-
-        if (!$stmt->execute()) {
-            echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-        }
+      if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat) VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
+          echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+      }
 
 
 
-        // }
-        //shani shalel add this
-        imap_delete($connection, $email_number);
-        $check = imap_mailboxmsginfo($connection);
-        echo "Messages after  delete: " . $check->Nmsgs . "<br />\n";
-    }
+      if (!$stmt->bind_param("ss",   $subject, $fmessage)) {
+          echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      }
+
+      if (!$stmt->execute()) {
+          echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      }
+
+
+
+
+   // }
+      //shani shalel add this
+      imap_delete($connection, $email_number);
+      $check = imap_mailboxmsginfo($connection);
+      echo "Messages after  delete: " . $check->Nmsgs . "<br />\n";
+  }
 
 
 }
