@@ -73,7 +73,7 @@ echo "</ul>";
 
 echo "Now, copy and paste one of these folder names (the whole string) into this field:<br><br>"; 
 echo <<<HERE
-<form method="POST" action="gmail.php">
+<form method="POST" action="gmail2.php">
 <h1>folder: </h1>
 	<input type="text" name="folder" value=""/>
    <input type="hidden" class="form-control" name="username" value="$user" />
