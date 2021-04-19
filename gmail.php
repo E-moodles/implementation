@@ -1,3 +1,8 @@
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+require '../vendor/autoload.php';
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -29,6 +34,7 @@ $mysqli  = mysqli_connect('127.0.0.1', 'root', '1234', 'emoodles', '3306');
 $mysqli2  = mysqli_connect('127.0.0.1', 'root', '1234', 'emoodles', '3306');
 $mysqli3  = mysqli_connect('127.0.0.1', 'root', '1234', 'mood', '3306');
 $mysqli4  = mysqli_connect('127.0.0.1', 'root', '1234', 'mood', '3306');
+$mysqli5  = mysqli_connect('127.0.0.1', 'root', '1234', 'mood', '3306');
 
 
 //Your gmail email address and password
@@ -45,7 +51,7 @@ $hostname = isset($_POST["folder"]);
 
 //Open the connection
 #$connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
-$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodlesmessage@gmail.com','moodle1234') or die('Cannot connect to Gmail: ' . imap_last_error());
+$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodles12@gmail.com','') or die('Cannot connect to Gmail: ' . imap_last_error());
 
 
 //Grab all the emails inside the inbox
@@ -59,7 +65,6 @@ echo "<div class='container'>
 	<div class='col-md-6'><h1 class='bg-primary'>Total Emails: " . $totalemails . "</h1></div></div>";
   
 if($emails) {
-
 
   
   //sort emails by newest first
@@ -80,11 +85,38 @@ if($emails) {
 
     //shani shalel add :
     $tomess=$headerinfo->{'toaddress'};
-    //
-	$from = $headerinfo->{'fromaddress'};
+
+//      $from = $overview[0]->from;
+//
+//      $header = imap_headerinfo($inbox, $x);
+//      $fromaddress = $header->from[0]->mailbox . "@" . $header->from[0]->host;
+
+
+      $fromaddr = $headerinfo->from[0]->mailbox . "@" . $headerinfo->from[0]->host;
+
+
+      //$from = $headerinfo->{'from[2]'};
 	$subject = $headerinfo->{'subject'};
 	$date = $headerinfo->{'date'};
 	$fmessage = quoted_printable_decode($message);
+
+
+//getting the number of the course
+
+      $i=strpos($tomess,'@');//location of @
+      $j=strpos($tomess,'+');//location of +
+      if ($j==false){//there isn't + in the email
+          //send mail to the address that we gets and tells the format isn't right
+          $msg = "The address you entered isn't right \n , please look again at the format that the email address should be . ";
+          $msg = wordwrap($msg);
+          mail($fromaddr,"E-moodles Error",$msg);
+          $check="email isn't good";
+      }else{
+          $j++;
+          $z=$i-$j;
+          $num_course=substr($tomess,$j,$z);
+      }
+
 
 
 
@@ -113,28 +145,56 @@ uniqueid TEXT, userid TEXT, firstname TEXT, lastname TEXT, email TEXT, enrolled 
 
 
 
-      $result=mysqli_query($mysqli3,"select * from mdl_emoodles_user_details where email='$from'");
+      //$result=mysqli_query($mysqli3,"select * from mdl_emoodles_user_details where email='$from'");
+
+
+
+
+
 	//if ($result->num_rows>0){
 	    print ("hereeee");
 
 	    $var = html_entity_decode($message);
 
-        echo <<<END
+
+      $resultt=mysqli_query($mysqli4,"select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
+      $row = mysqli_fetch_array($resultt);
+      $userid = $row[0];
+
+
+
+
+
+
+
+      echo <<<END
         <div class='container'>
         <div class='col-md-6'>
         <h4>Inserting:<br><br>
         <h4>Subject:</h4> $subject <br><br>
         <h4>Message:</h4> $message <br><br>
+        <h4>Date:</h4> $date <br><br>
+        <h4>Sender:</h4> $fromaddr <br><br>
+        <h4>ID:</h4> $userid <br><br>
+
+
+
         </div></div>
 END;
 
 
-//
-//        <h4>Sender:</h4>  $from <br><br>
+
+
+      $id1=mysqli_query($mysqli4,"SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
+      $d2=mysqli_fetch_array($id1);
+      $id = $d2['MAX']+1;
 
 
 
-        if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified) VALUES (46, 2, 1, ?, 46, 2, 0, 1617306676, 2)"))) {
+      $timestamp = strtotime($date);
+
+
+        if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified) VALUES ($id, 2, 1, ?, $id, $userid, 0, $timestamp, 2)"))) {
             echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
         }
 
@@ -150,13 +210,13 @@ END;
       $var1 = $fmessage;
       $var2 = '<p>' + $var1 + '</p>';
 
-      if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat) VALUES (46, 46, 0, 2, 1617306676, 1617306676, ?,?, 1)"))) {
+      if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat) VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
           echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
       }
 
 
 
-      if (!$stmt->bind_param("ss",  $subject, $fmessage)) {
+      if (!$stmt->bind_param("ss",   $subject, $fmessage)) {
           echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
       }
 
