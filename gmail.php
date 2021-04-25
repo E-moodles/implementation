@@ -136,40 +136,24 @@ if($emails) {
 
 
         //getting the number of the course
-        $i=strpos($tomess,'@');//location of @
-        $j=strpos($tomess,'+');//location of +
-        $check="isn't enter anywere";
-        if ($j==false){//there isn't + in the email
-            //send mail to the address that we gets and tells the format isn't right
-            $mail=new PHPMailer();
-            $mail->IsSMTP(); // enable SMTP
-            $mail->SMTPDebug = 1;  //Enable verbose debug output
-            // $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-            $mail->Password = 'moodle1234';                               //SMTP password
-            $mail->Port = 465;
-            $mail->SMTPSecure = 'ssl';
 
-            $mail->AddAddress($fromaddr);
+        $index_strudel=strpos($tomess,'@');//location of @
+        $index_plus=strpos($tomess,'+');//location of +
+        $index_point=strpos($tomess,'.');//location of .
 
-            $mail->SetFrom("emoodlesmessage@gmail.com");
-            $mail->Subject = 'E-Moodle Syntax error mail ';
-            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
-            $mail->isHTML(true);
-            try {
-                if ($mail->Send()) {
-                    $check = "email send";
-                } else {
-                    $check = "email isn't send";
-                }
-            } catch (Exception $e) {
-            }
-        }else{
-            $j++;
-            $z=$i-$j;
-            $num_course=substr($tomess,$j,$z);
+
+        if ($index_plus!=false && $index_point!=false){
+
+            $index_plus++;
+            $space_between_1=$index_strudel-$index_plus;
+            $space_between_2=$index_point-$index_plus;
+            $index_point++;
+            $space_between_3=$index_strudel-$index_point;
+
+            $temp=substr($tomess,$index_plus,$space_between_1);
+            $num_course=substr($tomess,$index_plus,$space_between_2 );
+            $num_forum=substr($tomess,$index_point,$space_between_3);
+
 
             /**check if the email is participate in the course , according to num_course and $fromaddr
              * if the user is participate in the course he will have X in enrolled in this course_number
@@ -182,7 +166,6 @@ if($emails) {
             $enrolled=$row[0]; //is it is participate it will be =='X'
 
             if($enrolled!='X'){ // isn't participate
-
 
                 //send mail to the address that we gets and tells the format isn't right
                 $mail=new PHPMailer();
@@ -202,80 +185,127 @@ if($emails) {
                 $mail->Subject = "E-Moodle incorrect course number  ";
                 $mail->Body = "You are not participate in course number {$num_course} , please check your courses number again ";
                 $mail->isHTML(true);
-                try {
-                    if ($mail->Send()) {
-                        $check = "email send";
-                    } else {
-                        $check = "email isn't send";
-                    }
-                } catch (Exception $e) {
-                }
 
             }
             else{
 
+                /*checking if the num_forum is exist in the num_course we gets if not we will return email error*/
 
-                $var = html_entity_decode($message);
+                $is_exist=mysqli_query($mysqli5,"select id from mdl_forum where course='$num_course' and id='$num_forum'");
 
-                $resultt=mysqli_query($mysqli4,"select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
-                $row = mysqli_fetch_array($resultt);
-                $userid = $row[0];
+                $row=mysqli_fetch_array($is_exist);
+                $enrolled=$row[0]; //is it is exist it will be =='$num_forum'
 
-                echo <<<END
-                <div class='container'>
-                <div class='col-md-6'>
-                <h4>Inserting:<br><br>
-                <h4>Subject:</h4> $subject <br><br>
-                <h4>Message:</h4> $message <br><br>
-                <h4>Date:</h4> $date <br><br>
-                <h4>Sender:</h4> $fromaddr <br><br>
-                <h4>ID:</h4> $userid <br><br>
-                <h4>num of course:</h4> $num_course <br><br>
-                </div></div>
+                if(strcmp($enrolled,$num_forum)!=0){//the strings are not equal!
+                    //we will send an error mail
+
+                    //send mail to the address that we gets and tells the format isn't right
+                    $mail=new PHPMailer();
+                    $mail->IsSMTP(); // enable SMTP
+                    $mail->SMTPDebug = 1;  //Enable verbose debug output
+                    // $mail->isSMTP();                                            //Send using SMTP
+                    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                    $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+                    $mail->Password = 'moodle1234';                               //SMTP password
+                    $mail->Port = 465;
+                    $mail->SMTPSecure = 'ssl';
+
+                    $mail->AddAddress($fromaddr);
+
+                    $mail->SetFrom("emoodlesmessage@gmail.com");
+                    $mail->Subject = "E-Moodle incorrect course number  ";
+                    $mail->Body = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
+                    forum number again ";
+                    $mail->isHTML(true);
+
+                }
+                else {
+
+                    $var = html_entity_decode($message);
+
+                    $resultt = mysqli_query($mysqli4, "select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
+                    $row = mysqli_fetch_array($resultt);
+                    $userid = $row[0];
+
+                    echo <<<END
+                    <div class='container'>
+                    <div class='col-md-6'>
+                    <h4>Inserting:<br><br>
+                    <h4>Subject:</h4> $subject <br><br>
+                    <h4>Message:</h4> $message <br><br>
+                    <h4>Date:</h4> $date <br><br>
+                    <h4>Sender:</h4> $fromaddr <br><br>
+                    <h4>ID:</h4> $userid <br><br>
+                    <h4>num of course:</h4> $num_course <br><br>
+                    <h4>num of forum:</h4> $num_forum <br><br>
+
+                    </div></div>
 END;
 
-                $id1=mysqli_query($mysqli4,"SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
-                $d2=mysqli_fetch_array($id1);
-                $id = $d2['MAX']+1;
+                    $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
+                    $d2 = mysqli_fetch_array($id1);
+                    $id = $d2['MAX'] + 1;
 
-                $timestamp = strtotime($date);
+                    $timestamp = strtotime($date);
 
 
-                if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified)
-        VALUES ($id, $num_course, 3, ?, $id, $userid, 0, $timestamp, 2)"))) {
-                    echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                    if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified)
+            VALUES ($id, $num_course, $num_forum, ?, $id, $userid, 0, $timestamp, 2)"))) {
+                        echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                    }
+
+
+                    if (!$stmt->bind_param("s", $subject)) {
+                        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                    }
+
+                    if (!$stmt->execute()) {
+                        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    }
+
+                    $var1 = $fmessage;
+                    $var2 = '<p>' + $var1 + '</p>';
+
+                    if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
+                VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
+                        echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                    }
+
+
+                    if (!$stmt->bind_param("ss", $subject, $fmessage)) {
+                        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                    }
+
+                    if (!$stmt->execute()) {
+                        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    }
                 }
-
-
-                if (!$stmt->bind_param("s",  $subject)) {
-                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-                }
-
-                if (!$stmt->execute()) {
-                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-                }
-
-                $var1 = $fmessage;
-                $var2 = '<p>' + $var1 + '</p>';
-
-                if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
-            VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
-                    echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
-                }
-
-
-                if (!$stmt->bind_param("ss",  $subject, $fmessage)) {
-                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-                }
-
-                if (!$stmt->execute()) {
-                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-                }
-
-
 
 
             }
+
+        }else{
+
+            //send mail to the address that we gets and tells the format isn't right
+            $mail=new PHPMailer();
+            $mail->IsSMTP(); // enable SMTP
+            $mail->SMTPDebug = 1;  //Enable verbose debug output
+            // $mail->isSMTP();                                            //Send using SMTP
+            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+            $mail->Password = 'moodle1234';                               //SMTP password
+            $mail->Port = 465;
+            $mail->SMTPSecure = 'ssl';
+
+            $mail->AddAddress($fromaddr);
+
+            $mail->SetFrom("emoodlesmessage@gmail.com");
+            $mail->Subject = 'E-Moodle Syntax error mail ';
+            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
+            $mail->isHTML(true);
+
         }
 
 
