@@ -134,15 +134,51 @@ if($emails) {
         $date = $headerinfo->{'date'};
         $fmessage = quoted_printable_decode($message);
 
+//        $check="not send";
+//
 
-        //getting the number of the course
+
+
+
+        //getting the number of the course em@gmail.
 
         $index_strudel=strpos($tomess,'@');//location of @
         $index_plus=strpos($tomess,'+');//location of +
         $index_point=strpos($tomess,'.');//location of .
 
+        if ($index_plus==false || $index_point>$index_strudel){//there isn't plus in the mail
 
-        if ($index_plus!=false && $index_point!=false){
+            //send mail to the address that we gets and tells the format isn't right
+            $mail=new PHPMailer();
+            $mail->IsSMTP(); // enable SMTP
+            $mail->SMTPDebug = 1;  //Enable verbose debug output
+            //$mail->isSMTP();                                            //Send using SMTP
+            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+            $mail->Password = 'moodle1234';                               //SMTP password
+            $mail->Port = 465;
+            $mail->SMTPSecure = 'ssl';
+
+            $mail->AddAddress($fromaddr);
+
+            $mail->SetFrom("emoodlesmessage@gmail.com");
+            $mail->Subject = 'E-Moodle Syntax error mail ';
+            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
+            $mail->isHTML(true);
+
+            try {
+                if ($mail->Send()) {
+                    $check = "email send";
+                } else {
+                    $check = "email isn't send";
+                }
+            } catch (Exception $e) {
+
+            }
+
+        }
+        else{
 
             $index_plus++;
             $space_between_1=$index_strudel-$index_plus;
@@ -185,6 +221,15 @@ if($emails) {
                 $mail->Subject = "E-Moodle incorrect course number  ";
                 $mail->Body = "You are not participate in course number {$num_course} , please check your courses number again ";
                 $mail->isHTML(true);
+                try {
+                    if ($mail->Send()) {
+                        $check = "email send";
+                    } else {
+                        $check = "email isn't send";
+                    }
+                } catch (Exception $e) {
+
+                }
 
             }
             else{
@@ -196,6 +241,7 @@ if($emails) {
                 $row=mysqli_fetch_array($is_exist);
                 $enrolled=$row[0]; //is it is exist it will be =='$num_forum'
 
+                //this course don't have this forum number
                 if(strcmp($enrolled,$num_forum)!=0){//the strings are not equal!
                     //we will send an error mail
 
@@ -218,6 +264,15 @@ if($emails) {
                     $mail->Body = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
                     forum number again ";
                     $mail->isHTML(true);
+                    try {
+                        if ($mail->Send()) {
+                            $check = "email send";
+                        } else {
+                            $check = "email isn't send";
+                        }
+                    } catch (Exception $e) {
+
+                    }
 
                 }
                 else {
@@ -285,28 +340,8 @@ END;
 
             }
 
-        }else{
-
-            //send mail to the address that we gets and tells the format isn't right
-            $mail=new PHPMailer();
-            $mail->IsSMTP(); // enable SMTP
-            $mail->SMTPDebug = 1;  //Enable verbose debug output
-            // $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-            $mail->Password = 'moodle1234';                               //SMTP password
-            $mail->Port = 465;
-            $mail->SMTPSecure = 'ssl';
-
-            $mail->AddAddress($fromaddr);
-
-            $mail->SetFrom("emoodlesmessage@gmail.com");
-            $mail->Subject = 'E-Moodle Syntax error mail ';
-            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
-            $mail->isHTML(true);
-
         }
+
 
 
 
