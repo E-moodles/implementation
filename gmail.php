@@ -320,7 +320,8 @@ END;
                     }
 
                     $var1 = $fmessage;
-                    $var2 = '<p>' + $var1 + '</p>';
+                    //var2 for hebrew
+
 
                     if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
                 VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
@@ -335,6 +336,61 @@ END;
                     if (!$stmt->execute()) {
                         echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
                     }
+
+                    //gets the emaill of all of the students
+                    $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$num_course' and enrolled='X';");
+                    $result1=mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '5';");
+                    $row = mysqli_fetch_array($result1);
+                    $cousre_name = $row[0];
+
+                    while($ans = $emails_students->fetch_array())
+                    {
+                        $list_of_emails[] = $ans;
+                    }
+
+                    foreach($list_of_emails as $ans){
+
+                        $mail=new PHPMailer();
+                        $mail->IsSMTP(); // enable SMTP
+                        $mail->SMTPDebug = 1;  //Enable verbose debug output
+                        //$mail->isSMTP();                                            //Send using SMTP
+                        $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                        $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                        $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+                        $mail->Password = 'moodle1234';                               //SMTP password
+                        $mail->Port = 465;
+                        $mail->SMTPSecure = 'ssl';
+
+                        $mail->AddAddress($ans['email']);
+
+                        $mail->SetFrom("emoodlesmessage@gmail.com");
+                        $mail->Subject = "E-Moodle :: You have new message from +{$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
+                        $mail->Body = $fmessage;
+                        $mail->isHTML(true);
+
+                        try {
+                            if ($mail->Send()) {
+                                $check = "email send";
+                            } else {
+                                $check = "email isn't send";
+                            }
+                        } catch (Exception $e) {
+
+                        }
+
+
+
+
+                    }
+
+
+
+
+
+
+
+
+
                 }
 
 
