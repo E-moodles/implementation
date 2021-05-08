@@ -180,6 +180,124 @@ if($emails) {
         }
         else{
 
+            //emoodles+reply.8.9.164.165@gmail.com
+            if(strpos($tomess,"+reply")!=""){
+                $index_strudel=strpos($tomess,"@");
+                $index_plus=strpos($tomess,'+');
+                $index_point=strpos($tomess,'.');
+
+                $index_plus++;
+                $index_point++;
+                $space_between_3=$index_strudel-$index_point;
+                $num_discussion_id=substr($tomess,$index_point,$space_between_3);
+
+
+                $index_point_diss=strpos($num_discussion_id,'.');
+                //8
+                $course=substr($num_discussion_id,0,$index_point_diss);
+
+                $temp=substr($num_discussion_id,$index_point_diss+1);
+
+                $index_point_temp=strpos($temp,'.');
+                //9
+                $forum=substr($temp,0,$index_point_temp);
+
+                $temp=substr($temp,$index_point_temp+1);
+
+                $index_point_temp=strpos($temp,'.');
+                //164
+                $discussion=substr($temp,0, $index_point_temp);
+                //165
+                $posts=substr($temp,$index_point_temp+1);
+
+                /*enter the mail into DB*/
+                $userid=mysqli_query($mysqli5,"select userid from mdl_emoodles_user_details where email='$fromaddr'");
+                $row=mysqli_fetch_array($userid);
+                $userid=$row[0];
+
+
+                $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
+                $d2 = mysqli_fetch_array($id1);
+                $id_diss = $d2['MAX'] + 1;
+
+                $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_posts");
+                $d2 = mysqli_fetch_array($id1);
+                $id_posts = $d2['MAX'] + 1;
+
+                $timestamp = strtotime($date);
+
+                $var1 = $fmessage;
+                //var2 for hebrew
+
+
+
+                if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
+                VALUES ($id_posts, $discussion,$posts ,$userid, $timestamp, $timestamp, ?,?, 1)"))) {
+                    echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                }
+
+
+                if (!$stmt->bind_param("ss", $subject, $fmessage)) {
+                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+                if (!$stmt->execute()) {
+                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+
+                /*sending mail to all of the students*/
+
+                //gets the emaill of all of the students
+                $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$course' and enrolled='X';");
+                $result1=mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$course';");
+                $row = mysqli_fetch_array($result1);
+                $cousre_name = $row[0];
+
+                while($ans = $emails_students->fetch_array())
+                {
+                    $list_of_emails[] = $ans;
+                }
+
+                foreach($list_of_emails as $ans) {
+
+                    $mail = new PHPMailer();
+                    $mail->addReplyTo("emoodlesmessage+reply.$course.$forum.$discussion.$id_posts@gmail.com", 'Information');
+                    $mail->IsSMTP(); // enable SMTP
+                    $mail->SMTPDebug = 1;  //Enable verbose debug output
+                    //$mail->isSMTP();                                            //Send using SMTP
+                    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                    $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+                    $mail->Password = 'moodle1234';                               //SMTP password
+                    $mail->Port = 465;
+                    $mail->SMTPSecure = 'ssl';
+
+                    $mail->AddAddress($ans['email']);
+
+                    $mail->SetFrom("emoodlesmessage@gmail.com");
+                    $mail->Subject = "E-Moodle :: You have new message from +{$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
+                    $mail->Body = $fmessage;
+                    $mail->isHTML(true);
+
+                    try {
+                        if ($mail->Send()) {
+                            $check = "email send";
+                        } else {
+                            $check = "email isn't send";
+                        }
+                    } catch (Exception $e) {
+
+                    }
+                }
+
+
+
+
+            }
+
+
+            //emoodles+5.4@gmail.com
             $index_plus++;
             $space_between_1=$index_strudel-$index_plus;
             $space_between_2=$index_point-$index_plus;
@@ -278,7 +396,6 @@ if($emails) {
                 else {
 
                     $var = html_entity_decode($message);
-
                     $resultt = mysqli_query($mysqli4, "select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
                     $row = mysqli_fetch_array($resultt);
                     $userid = $row[0];
@@ -298,15 +415,21 @@ if($emails) {
                     </div></div>
 END;
 
+
                     $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
                     $d2 = mysqli_fetch_array($id1);
-                    $id = $d2['MAX'] + 1;
+                    $id_diss = $d2['MAX'] + 1;
+
+                    $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_posts");
+                    $d2 = mysqli_fetch_array($id1);
+                    $id_posts = $d2['MAX'] + 1;
+
 
                     $timestamp = strtotime($date);
 
 
                     if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified)
-            VALUES ($id, $num_course, $num_forum, ?, $id, $userid, 0, $timestamp, 2)"))) {
+            VALUES ($id_diss, $num_course, $num_forum, ?, $id_posts, $userid, 0, $timestamp, 2)"))) {
                         echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
                     }
 
@@ -324,7 +447,7 @@ END;
 
 
                     if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
-                VALUES ($id, $id, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
+                VALUES ($id_posts, $id_diss, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
                         echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
                     }
 
@@ -337,9 +460,10 @@ END;
                         echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
                     }
 
+                    /*sending mail to all of the students participate*/
                     //gets the emaill of all of the students
                     $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$num_course' and enrolled='X';");
-                    $result1=mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '5';");
+                    $result1=mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$num_course';");
                     $row = mysqli_fetch_array($result1);
                     $cousre_name = $row[0];
 
@@ -351,6 +475,7 @@ END;
                     foreach($list_of_emails as $ans){
 
                         $mail=new PHPMailer();
+                        $mail->addReplyTo("emoodlesmessage+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com", 'Information');
                         $mail->IsSMTP(); // enable SMTP
                         $mail->SMTPDebug = 1;  //Enable verbose debug output
                         //$mail->isSMTP();                                            //Send using SMTP
