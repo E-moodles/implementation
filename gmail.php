@@ -228,6 +228,12 @@ if($emails) {
 
                 $var1 = $fmessage;
                 //var2 for hebrew
+                $temp1=mysqli_query($mysqli4,"SELECT name FROM mdl_forum_discussions where id='$discussion'");
+                $temp_arr=mysqli_fetch_array($temp1);
+                $re="RE:";
+                $subject_from_DB=$re.$temp_arr[0];
+
+                $subject =$subject_from_DB;
 
 
 
@@ -237,7 +243,7 @@ if($emails) {
                 }
 
 
-                if (!$stmt->bind_param("ss", $subject, $fmessage)) {
+                if (!$stmt->bind_param("ss", $subject_from_DB, $fmessage)) {
                     echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
                 }
 
@@ -276,7 +282,7 @@ if($emails) {
                     $mail->AddAddress($ans['email']);
 
                     $mail->SetFrom("emoodlesmessage@gmail.com");
-                    $mail->Subject = "E-Moodle :: You have new message from +{$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
+                    $mail->Subject = "E-Moodle :: New message from forum {$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_from_DB}";
                     $mail->Body = $fmessage;
                     $mail->isHTML(true);
 
@@ -295,7 +301,7 @@ if($emails) {
 
 
             }
-
+            else {
 
             //emoodles+5.4@gmail.com
             $index_plus++;
@@ -463,18 +469,17 @@ END;
                     /*sending mail to all of the students participate*/
                     //gets the emaill of all of the students
                     $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$num_course' and enrolled='X';");
-                    $result1=mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$num_course';");
+                    $result1 = mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$num_course';");
                     $row = mysqli_fetch_array($result1);
                     $cousre_name = $row[0];
 
-                    while($ans = $emails_students->fetch_array())
-                    {
+                    while ($ans = $emails_students->fetch_array()) {
                         $list_of_emails[] = $ans;
                     }
 
-                    foreach($list_of_emails as $ans){
+                    foreach ($list_of_emails as $ans) {
 
-                        $mail=new PHPMailer();
+                        $mail = new PHPMailer();
                         $mail->addReplyTo("emoodlesmessage+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com", 'Information');
                         $mail->IsSMTP(); // enable SMTP
                         $mail->SMTPDebug = 1;  //Enable verbose debug output
@@ -489,7 +494,7 @@ END;
                         $mail->AddAddress($ans['email']);
 
                         $mail->SetFrom("emoodlesmessage@gmail.com");
-                        $mail->Subject = "E-Moodle :: You have new message from +{$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
+                        $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
                         $mail->Body = $fmessage;
                         $mail->isHTML(true);
 
@@ -504,13 +509,10 @@ END;
                         }
 
 
-
-
                     }
 
 
-
-
+                }
 
 
 
