@@ -53,6 +53,23 @@ $messagestatus = "ALL";
 
 //-------------------------------------------------------------------
 
+
+//to check if it is a english or an hebrew we will do
+function convert_to_utf8_if_needed($text){
+
+    if (preg_match('!!u', base64_decode($text)))
+    {
+        return base64_decode($text);
+    }
+    else
+    {
+        return $text;
+    }
+}
+
+
+
+
 //Gmail host with folder
 $hostname = isset($_POST["folder"]);
 
@@ -406,12 +423,33 @@ if($emails) {
                     $row = mysqli_fetch_array($resultt);
                     $userid = $row[0];
 
+                    $subject_for_mail= $subject;
+
+                    //from base64 to utf-8
+                    $subject_after_base64 = convert_to_utf8_if_needed($subject);
+                    $message=convert_to_utf8_if_needed($message);
+                    //$message=$message_after_base64;
+                    //$p1='<p dir="ltr" style="text-align:left;>';
+                    //$p2='</p>';
+
+                    //we should remove the '=?UTF-8?B?' from the start and the '?=' from the end
+                    $subject =substr($subject, 10,-2);
+                    $subject=(convert_to_utf8_if_needed($subject));
+
+
+
+                   // $message=$p1.=$message;
+                    //$message.=$p2;
+
                     echo <<<END
                     <div class='container'>
                     <div class='col-md-6'>
                     <h4>Inserting:<br><br>
                     <h4>Subject:</h4> $subject <br><br>
+                    <h4>Subject for mail :</h4> $subject_for_mail <br><br>
+
                     <h4>Message:</h4> $message <br><br>
+
                     <h4>Date:</h4> $date <br><br>
                     <h4>Sender:</h4> $fromaddr <br><br>
                     <h4>ID:</h4> $userid <br><br>
@@ -494,7 +532,7 @@ END;
                         $mail->AddAddress($ans['email']);
 
                         $mail->SetFrom("emoodlesmessage@gmail.com");
-                        $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject}";
+                        $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
                         $mail->Body = $fmessage;
                         $mail->isHTML(true);
 
