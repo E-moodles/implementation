@@ -68,6 +68,36 @@ function convert_to_utf8_if_needed($text){
 }
 
 
+function is_base64($s){
+    // Check if there are valid base64 characters
+    if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) return false;
+
+    // Decode the string in strict mode and check the results
+    $decoded = base64_decode($s, true);
+    if(false === $decoded) return false;
+
+    // Encode the string again
+    if(base64_encode($decoded) != $s) return false;
+
+    return true;
+}
+
+
+
+//to check if it is a english or an hebrew we will do
+function convert_to_base64_if_needed($text){
+
+    if (is_base64($text))
+    {
+        return text;
+    }
+    else
+    {
+        return base64_encode($text);
+    }
+}
+
+
 
 
 //Gmail host with folder
@@ -227,6 +257,9 @@ if($emails) {
                 //165
                 $posts=substr($temp,$index_point_temp+1);
 
+
+
+
                 /*enter the mail into DB*/
                 $userid=mysqli_query($mysqli5,"select userid from mdl_emoodles_user_details where email='$fromaddr'");
                 $row=mysqli_fetch_array($userid);
@@ -251,6 +284,40 @@ if($emails) {
                 $subject_from_DB=$re.$temp_arr[0];
 
                 $subject =$subject_from_DB;
+
+
+                /* covert to hebrew in the right format */
+
+
+                $message=convert_to_utf8_if_needed($message);
+
+                //fmessage
+                $fmessage=convert_to_utf8_if_needed($fmessage);
+
+                //covert it to base 64 for the email
+                $subject_base64= convert_to_base64_if_needed($subject_from_DB);
+
+
+                $at_start="=?UTF-8?B?";
+                $at_end="?=";
+
+                $subject_base64=$at_start.$subject_base64.$at_end;
+
+
+                //print it to the screen
+                echo <<<END
+                    <div class='container'>
+                    <div class='col-md-6'>
+                    <h4>Inserting:<br><br>
+                    <h4>subject after base64 :</h4> $subject_base64 <br><br>
+                    <h4>Subject for mail :</h4> $subject_from_DB <br><br>
+                    <h4>fMessage test :</h4> $fmessage <br><br>
+
+                  
+
+                    </div></div>
+END;
+
 
 
 
@@ -299,7 +366,7 @@ if($emails) {
                     $mail->AddAddress($ans['email']);
 
                     $mail->SetFrom("emoodlesmessage@gmail.com");
-                    $mail->Subject = "E-Moodle :: New message from forum {$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_from_DB}";
+                    $mail->Subject = "E-Moodle :: New message from forum {$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_base64}";
                     $mail->Body = $fmessage;
                     $mail->isHTML(true);
 
@@ -428,9 +495,11 @@ if($emails) {
                     //from base64 to utf-8
                     $subject_after_base64 = convert_to_utf8_if_needed($subject);
                     $message=convert_to_utf8_if_needed($message);
-                    //$message=$message_after_base64;
-                    //$p1='<p dir="ltr" style="text-align:left;>';
-                    //$p2='</p>';
+
+                    //fmessage
+                    $fmessage=convert_to_utf8_if_needed($fmessage);
+
+
 
                     //we should remove the '=?UTF-8?B?' from the start and the '?=' from the end
                     $subject =substr($subject, 10,-2);
@@ -438,8 +507,6 @@ if($emails) {
 
 
 
-                   // $message=$p1.=$message;
-                    //$message.=$p2;
 
                     echo <<<END
                     <div class='container'>
@@ -449,12 +516,14 @@ if($emails) {
                     <h4>Subject for mail :</h4> $subject_for_mail <br><br>
 
                     <h4>Message:</h4> $message <br><br>
+                    <h4>fMessage test :</h4> $fmessage <br><br>
 
                     <h4>Date:</h4> $date <br><br>
                     <h4>Sender:</h4> $fromaddr <br><br>
                     <h4>ID:</h4> $userid <br><br>
                     <h4>num of course:</h4> $num_course <br><br>
                     <h4>num of forum:</h4> $num_forum <br><br>
+                    <h4>reload !</h4>  <br><br>
 
                     </div></div>
 END;
