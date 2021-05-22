@@ -89,7 +89,7 @@ function convert_to_base64_if_needed($text){
 
     if (is_base64($text))
     {
-        return text;
+        return $text;
     }
     else
     {
@@ -387,71 +387,29 @@ END;
             }
             else {
 
-            //emoodles+5.4@gmail.com
-            $index_plus++;
-            $space_between_1=$index_strudel-$index_plus;
-            $space_between_2=$index_point-$index_plus;
-            $index_point++;
-            $space_between_3=$index_strudel-$index_point;
+                //emoodles+5.4@gmail.com
+                $index_plus++;
+                $space_between_1=$index_strudel-$index_plus;
+                $space_between_2=$index_point-$index_plus;
+                $index_point++;
+                $space_between_3=$index_strudel-$index_point;
 
-            $temp=substr($tomess,$index_plus,$space_between_1);
-            $num_course=substr($tomess,$index_plus,$space_between_2 );
-            $num_forum=substr($tomess,$index_point,$space_between_3);
+                $temp=substr($tomess,$index_plus,$space_between_1);
+                $num_course=substr($tomess,$index_plus,$space_between_2 );
+                $num_forum=substr($tomess,$index_point,$space_between_3);
 
 
-            /**check if the email is participate in the course , according to num_course and $fromaddr
-             * if the user is participate in the course he will have X in enrolled in this course_number
-             **/
+                /**check if the email is participate in the course , according to num_course and $fromaddr
+                 * if the user is participate in the course he will have X in enrolled in this course_number
+                 **/
 
-            $is_part=mysqli_query($mysqli5,"select  enrolled from mdl_emoodles_user_details 
+                $is_part=mysqli_query($mysqli5,"select  enrolled from mdl_emoodles_user_details 
             where email='$fromaddr' and courseid='$num_course'");
 
-            $row=mysqli_fetch_array($is_part);
-            $enrolled=$row[0]; //is it is participate it will be =='X'
+                $row=mysqli_fetch_array($is_part);
+                $enrolled=$row[0]; //is it is participate it will be =='X'
 
-            if($enrolled!='X'){ // isn't participate
-
-                //send mail to the address that we gets and tells the format isn't right
-                $mail=new PHPMailer();
-                $mail->IsSMTP(); // enable SMTP
-                $mail->SMTPDebug = 1;  //Enable verbose debug output
-                // $mail->isSMTP();                                            //Send using SMTP
-                $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                $mail->Password = 'moodle1234';                               //SMTP password
-                $mail->Port = 465;
-                $mail->SMTPSecure = 'ssl';
-
-                $mail->AddAddress($fromaddr);
-
-                $mail->SetFrom("emoodlesmessage@gmail.com");
-                $mail->Subject = "E-Moodle incorrect course number  ";
-                $mail->Body = "You are not participate in course number {$num_course} , please check your courses number again ";
-                $mail->isHTML(true);
-                try {
-                    if ($mail->Send()) {
-                        $check = "email send";
-                    } else {
-                        $check = "email isn't send";
-                    }
-                } catch (Exception $e) {
-
-                }
-
-            }
-            else{
-
-                /*checking if the num_forum is exist in the num_course we gets if not we will return email error*/
-
-                $is_exist=mysqli_query($mysqli5,"select id from mdl_forum where course='$num_course' and id='$num_forum'");
-
-                $row=mysqli_fetch_array($is_exist);
-                $enrolled=$row[0]; //is it is exist it will be =='$num_forum'
-
-                //this course don't have this forum number
-                if(strcmp($enrolled,$num_forum)!=0){//the strings are not equal!
-                    //we will send an error mail
+                if($enrolled!='X'){ // isn't participate
 
                     //send mail to the address that we gets and tells the format isn't right
                     $mail=new PHPMailer();
@@ -469,8 +427,7 @@ END;
 
                     $mail->SetFrom("emoodlesmessage@gmail.com");
                     $mail->Subject = "E-Moodle incorrect course number  ";
-                    $mail->Body = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
-                    forum number again ";
+                    $mail->Body = "You are not participate in course number {$num_course} , please check your courses number again ";
                     $mail->isHTML(true);
                     try {
                         if ($mail->Send()) {
@@ -483,37 +440,83 @@ END;
                     }
 
                 }
-                else {
+                else{
 
-                    $var = html_entity_decode($message);
-                    $resultt = mysqli_query($mysqli4, "select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
-                    $row = mysqli_fetch_array($resultt);
-                    $userid = $row[0];
+                    /*checking if the num_forum is exist in the num_course we gets if not we will return email error*/
 
-                    $subject_for_mail= $subject;
+                    $is_exist=mysqli_query($mysqli5,"select id from mdl_forum where course='$num_course' and id='$num_forum'");
 
-                    //from base64 to utf-8
-                    $subject_after_base64 = convert_to_utf8_if_needed($subject);
-                    $message=convert_to_utf8_if_needed($message);
+                    $row=mysqli_fetch_array($is_exist);
+                    $enrolled=$row[0]; //is it is exist it will be =='$num_forum'
 
-                    //fmessage
-                    $fmessage=convert_to_utf8_if_needed($fmessage);
+                    //this course don't have this forum number
+                    if(strcmp($enrolled,$num_forum)!=0){//the strings are not equal!
+                        //we will send an error mail
+
+                        //send mail to the address that we gets and tells the format isn't right
+                        $mail=new PHPMailer();
+                        $mail->IsSMTP(); // enable SMTP
+                        $mail->SMTPDebug = 1;  //Enable verbose debug output
+                        // $mail->isSMTP();                                            //Send using SMTP
+                        $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                        $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                        $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+                        $mail->Password = 'moodle1234';                               //SMTP password
+                        $mail->Port = 465;
+                        $mail->SMTPSecure = 'ssl';
+
+                        $mail->AddAddress($fromaddr);
+
+                        $mail->SetFrom("emoodlesmessage@gmail.com");
+                        $mail->Subject = "E-Moodle incorrect course number  ";
+                        $mail->Body = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
+                    forum number again ";
+                        $mail->isHTML(true);
+                        try {
+                            if ($mail->Send()) {
+                                $check = "email send";
+                            } else {
+                                $check = "email isn't send";
+                            }
+                        } catch (Exception $e) {
+
+                        }
+
+                    }
+                    else {
+
+                        $var = html_entity_decode($message);
+                        $resultt = mysqli_query($mysqli4, "select userid from mdl_emoodles_user_details where email='$fromaddr' and courseid = '$num_course'");
+                        $row = mysqli_fetch_array($resultt);
+                        $userid = $row[0];
+
+                        $subject_for_mail= $subject;
+
+                        //from base64 to utf-8
+                        $subject_after_base64 = convert_to_utf8_if_needed($subject);
+                        $message=convert_to_utf8_if_needed($message);
+
+                        //fmessage
+                        $fmessage=convert_to_utf8_if_needed($fmessage);
+
+
+                        //we will cut the string only if it is has '=?UTF-8?B?'
+                        if(strpos($subject,'=?UTF-8?B?')!==false) {
+                            //we should remove the '=?UTF-8?B?' from the start and the '?=' from the end
+                            $subject = substr($subject, 10, -2);
+                        }
+                        $subject_to_DB=(convert_to_utf8_if_needed($subject));
 
 
 
-                    //we should remove the '=?UTF-8?B?' from the start and the '?=' from the end
-                    $subject =substr($subject, 10,-2);
-                    $subject=(convert_to_utf8_if_needed($subject));
 
-
-
-
-                    echo <<<END
+                        echo <<<END
                     <div class='container'>
                     <div class='col-md-6'>
                     <h4>Inserting:<br><br>
                     <h4>Subject:</h4> $subject <br><br>
                     <h4>Subject for mail :</h4> $subject_for_mail <br><br>
+                    <h4>Subject for DB :</h4> $subject_to_DB <br><br>
 
                     <h4>Message:</h4> $message <br><br>
                     <h4>fMessage test :</h4> $fmessage <br><br>
@@ -529,97 +532,97 @@ END;
 END;
 
 
-                    $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
-                    $d2 = mysqli_fetch_array($id1);
-                    $id_diss = $d2['MAX'] + 1;
+                        $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_discussions");
+                        $d2 = mysqli_fetch_array($id1);
+                        $id_diss = $d2['MAX'] + 1;
 
-                    $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_posts");
-                    $d2 = mysqli_fetch_array($id1);
-                    $id_posts = $d2['MAX'] + 1;
-
-
-                    $timestamp = strtotime($date);
+                        $id1 = mysqli_query($mysqli4, "SELECT MAX(id) AS MAX FROM mdl_forum_posts");
+                        $d2 = mysqli_fetch_array($id1);
+                        $id_posts = $d2['MAX'] + 1;
 
 
-                    if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified)
+                        $timestamp = strtotime($date);
+
+
+                        if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_discussions (id, course, forum, name, firstpost, userid, assessed, timemodified, usermodified)
             VALUES ($id_diss, $num_course, $num_forum, ?, $id_posts, $userid, 0, $timestamp, 2)"))) {
-                        echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
-                    }
+                            echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                        }
 
 
-                    if (!$stmt->bind_param("s", $subject)) {
-                        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
+                        if (!$stmt->bind_param("s", $subject_to_DB)) {
+                            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                        }
 
-                    if (!$stmt->execute()) {
-                        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
+                        if (!$stmt->execute()) {
+                            echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                        }
 
-                    $var1 = $fmessage;
-                    //var2 for hebrew
+                        $var1 = $fmessage;
+                        //var2 for hebrew
 
 
-                    if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
+                        if (!($stmt = $mysqli3->prepare("INSERT INTO mdl_forum_posts (id, discussion, parent, userid, created, modified, subject, message, messageformat)
                 VALUES ($id_posts, $id_diss, 0, $userid, $timestamp, $timestamp, ?,?, 1)"))) {
-                        echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
-                    }
+                            echo "Prepare failed: (" . $mysqli3->errno . ") " . $mysqli3->error;
+                        }
 
 
-                    if (!$stmt->bind_param("ss", $subject, $fmessage)) {
-                        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
+                        if (!$stmt->bind_param("ss", $subject_to_DB, $fmessage)) {
+                            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                        }
 
-                    if (!$stmt->execute()) {
-                        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
+                        if (!$stmt->execute()) {
+                            echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                        }
 
-                    /*sending mail to all of the students participate*/
-                    //gets the emaill of all of the students
-                    $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$num_course' and enrolled='X';");
-                    $result1 = mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$num_course';");
-                    $row = mysqli_fetch_array($result1);
-                    $cousre_name = $row[0];
+                        /*sending mail to all of the students participate*/
+                        //gets the emaill of all of the students
+                        $emails_students = mysqli_query($mysqli4, "select email from mdl_emoodles_user_details where  courseid = '$num_course' and enrolled='X';");
+                        $result1 = mysqli_query($mysqli4, "select coursename from mdl_emoodles_user_details where  courseid = '$num_course';");
+                        $row = mysqli_fetch_array($result1);
+                        $cousre_name = $row[0];
 
-                    while ($ans = $emails_students->fetch_array()) {
-                        $list_of_emails[] = $ans;
-                    }
+                        while ($ans = $emails_students->fetch_array()) {
+                            $list_of_emails[] = $ans;
+                        }
 
-                    foreach ($list_of_emails as $ans) {
+                        foreach ($list_of_emails as $ans) {
 
-                        $mail = new PHPMailer();
-                        $mail->addReplyTo("emoodlesmessage+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com", 'Information');
-                        $mail->IsSMTP(); // enable SMTP
-                        $mail->SMTPDebug = 1;  //Enable verbose debug output
-                        //$mail->isSMTP();                                            //Send using SMTP
-                        $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                        $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                        $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                        $mail->Password = 'moodle1234';                               //SMTP password
-                        $mail->Port = 465;
-                        $mail->SMTPSecure = 'ssl';
+                            $mail = new PHPMailer();
+                            $mail->addReplyTo("emoodlesmessage+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com", 'Information');
+                            $mail->IsSMTP(); // enable SMTP
+                            $mail->SMTPDebug = 1;  //Enable verbose debug output
+                            //$mail->isSMTP();                                            //Send using SMTP
+                            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
+                            $mail->Password = 'moodle1234';                               //SMTP password
+                            $mail->Port = 465;
+                            $mail->SMTPSecure = 'ssl';
 
-                        $mail->AddAddress($ans['email']);
+                            $mail->AddAddress($ans['email']);
 
-                        $mail->SetFrom("emoodlesmessage@gmail.com");
-                        $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
-                        $mail->Body = $fmessage;
-                        $mail->isHTML(true);
+                            $mail->SetFrom("emoodlesmessage@gmail.com");
+                            $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
+                            $mail->Body = $fmessage;
+                            $mail->isHTML(true);
 
-                        try {
-                            if ($mail->Send()) {
-                                $check = "email send";
-                            } else {
-                                $check = "email isn't send";
+                            try {
+                                if ($mail->Send()) {
+                                    $check = "email send";
+                                } else {
+                                    $check = "email isn't send";
+                                }
+                            } catch (Exception $e) {
+
                             }
-                        } catch (Exception $e) {
+
 
                         }
 
 
                     }
-
-
-                }
 
 
 
