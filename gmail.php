@@ -501,14 +501,37 @@ END;
 
 
                         //we will cut the string only if it is has '=?UTF-8?B?'
-                        if(strpos($subject,'=?UTF-8?B?')!==false) {
-                            //we should remove the '=?UTF-8?B?' from the start and the '?=' from the end
-                            $subject = substr($subject, 10, -2);
+                        $counter=0;
+
+                        //we will cut the string only if it is has '=?UTF-8?B?'
+                        if(strpos($subject,'=?UTF-8?')!==false) {
+                            $temp_subject="";
+                            $reslt="";
+
+                            while(strpos($subject,'=?UTF-8?')!==false) {
+                                $counter=$counter+1;
+                                $var_1=strpos($subject,'=?UTF-8?');
+                                $temp_subject=substr($subject,($var_1+10));
+                                $var_2=strpos($temp_subject,'?=');
+                                $reslt= $reslt.substr($temp_subject, 0, $var_2);
+                                //cut off the part we already take
+                                $subject= substr($temp_subject,  $var_2+2);
+                            }
+                            $subject=$reslt;
+                            $subject_to_DB=quoted_printable_decode($subject);
+
                         }
-                        $subject_to_DB=(convert_to_utf8_if_needed($subject));
 
+                        if($counter<"2"){
+                            //if the subject is only hebrew
+                            $subject_to_DB=convert_to_utf8_if_needed($subject);
 
+                        }
+                        else{
+                            $subject_to_DB = str_replace('_', ' ', $subject_to_DB);
 
+                        }
+                        
 
                         echo <<<END
                     <div class='container'>
