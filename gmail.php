@@ -97,6 +97,37 @@ function convert_to_base64_if_needed($text){
     }
 }
 
+//this function gets mail address and message, and return the message without history
+function working_on_message($email_to , $message){
+
+    //cut all the lines that have '>'
+    $pos = strpos($message, '>');
+    $res=substr($message, 0, $pos);
+
+
+    //cut the line that contains the email_to
+    $pos = strpos($res, $email_to);
+    $res=substr($res, 0, $pos);
+
+    //cut from תאריך
+    $po= strripos($res, "בתאריך");
+    if($po!==false){
+        $res=substr($res, 0 , $po);
+        return $res;
+    }
+
+
+    //cut from on
+    $po= strripos($res, "On");
+    if($po!==false){
+        $res=substr($res, 0 , $po);
+        return $res;
+    }
+
+    //if the message without תאריך or On
+    return $message;
+
+}
 
 
 
@@ -185,8 +216,6 @@ if($emails) {
 //
 
 
-
-
         //getting the number of the course em@gmail.
 
         $index_strudel=strpos($tomess,'@');//location of @
@@ -258,8 +287,6 @@ if($emails) {
                 $posts=substr($temp,$index_point_temp+1);
 
 
-
-
                 /*enter the mail into DB*/
                 $userid=mysqli_query($mysqli5,"select userid from mdl_emoodles_user_details where email='$fromaddr'");
                 $row=mysqli_fetch_array($userid);
@@ -288,7 +315,6 @@ if($emails) {
 
                 /* covert to hebrew in the right format */
 
-
                 $message=convert_to_utf8_if_needed($message);
 
                 //fmessage
@@ -303,17 +329,24 @@ if($emails) {
 
                 $subject_base64=$at_start.$subject_base64.$at_end;
 
+                //cutt the message without history
+
+                //$fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
+
+                $mess= working_on_message("emoodlesmessage@gmail.com",$fmessage);
+                $fmessage=$mess;
 
                 //print it to the screen
                 echo <<<END
                     <div class='container'>
                     <div class='col-md-6'>
                     <h4>Inserting:<br><br>
+                    <h4>Sender:</h4> $fromaddr <br><br>
+                    <h4>mail was sent from :</h4>  $from<br><br>
                     <h4>subject after base64 :</h4> $subject_base64 <br><br>
                     <h4>Subject for mail :</h4> $subject_from_DB <br><br>
                     <h4>fMessage test :</h4> $fmessage <br><br>
-
-                  
+                    <h4>Mess test:</h4> $mess <br><br>
 
                     </div></div>
 END;
@@ -531,18 +564,26 @@ END;
                             $subject_to_DB = str_replace('_', ' ', $subject_to_DB);
 
                         }
-                        
+
+
+                       // $fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
+                        $mess= working_on_message("emoodlesmessage@gmail.com",$fmessage);
+
+                        $fmessage=$mess;
 
                         echo <<<END
                     <div class='container'>
                     <div class='col-md-6'>
                     <h4>Inserting:<br><br>
+                    <h4>mail was sent from :</h4>  $from<br><br>
                     <h4>Subject:</h4> $subject <br><br>
                     <h4>Subject for mail :</h4> $subject_for_mail <br><br>
                     <h4>Subject for DB :</h4> $subject_to_DB <br><br>
-
                     <h4>Message:</h4> $message <br><br>
                     <h4>fMessage test :</h4> $fmessage <br><br>
+                    <h4>Mess test:</h4> $mess<br><br>
+
+                    
 
                     <h4>Date:</h4> $date <br><br>
                     <h4>Sender:</h4> $fromaddr <br><br>
