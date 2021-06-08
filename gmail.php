@@ -29,6 +29,7 @@ use PHPMailer\PHPMailer\SMTP;
 
 require 'vendor/autoload.php';
 
+//phpinfo();
 
 ini_set('display_errors', 1);
 session_start();
@@ -36,17 +37,24 @@ session_start();
 
 //connect to mysql
 //connect to mysql
-$mysqli  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'stam', '3306');
+//$mysqli  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
 //connect to mysql for students details
-$mysqli2  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'stam', '3306');
-$mysqli3  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'moodle1', '3306');
-$mysqli4  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'moodle1', '3306');
-$mysqli5  = mysqli_connect('127.0.0.1', 'root', 'shani3003', 'moodle1', '3306');
+//$mysqli2  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
+$mysqli3  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
+$mysqli4  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
+$mysqli5  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
+
+//Your gmail email address and password for the code to run
+$gmail_username='emoodlesmessage';
+ $gmail_address ='emoodlesmessage@gmail.com';
+ $gmail_password='moodle1234';
 
 
 //Your gmail email address and password
 $username = isset($_SESSION["username"]);
 $password = isset($_SESSION["password"]);
+
+
 
 //Select messagestatus as ALL or UNSEEN which is the unread email
 $messagestatus = "ALL";
@@ -129,6 +137,73 @@ function working_on_message($email_to , $message){
 
 }
 
+// //send mail to the address that we gets and tells the format isn't right
+//input to send subject ,body and email_address of the sender
+function Error_massage($subject, $body, $email_address)
+{
+    global $gmail_address,$gmail_password;
+    //send mail to the address that we gets and tells the format isn't right
+    $mail=new PHPMailer();
+    $mail->IsSMTP(); // enable SMTP
+    $mail->SMTPDebug = 1;  //Enable verbose debug output
+    //$mail->isSMTP();                                            //Send using SMTP
+    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+    $mail->Username = $gmail_address;                     //SMTP username
+    $mail->Password = $gmail_password;                               //SMTP password
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'ssl';
+
+    $mail->AddAddress($email_address);
+
+    $mail->SetFrom($gmail_address);
+    $mail->Subject = $subject;
+    $mail->Body = $body;
+    $mail->isHTML(true);
+
+    try {
+        if ($mail->Send()) {
+            $check = "email send";
+        } else {
+            $check = "email isn't send";
+        }
+    } catch (Exception $e) {
+
+    }
+}
+
+//send masseg with areplay addres ,
+function correct_massage($subject, $body, $email_adress, $email_replay)
+{
+    global $gmail_address,$gmail_password;
+    $mail = new PHPMailer();
+    $mail->addReplyTo($email_replay, 'Replay');
+    $mail->IsSMTP(); // enable SMTP
+    $mail->SMTPDebug = 1;  //Enable verbose debug output
+    //$mail->isSMTP();                                            //Send using SMTP
+    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+    $mail->Username = $gmail_address;                     //SMTP username
+    $mail->Password = 'moodle1234';                               //SMTP password
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'ssl';
+
+    $mail->AddAddress($email_adress);
+
+    $mail->SetFrom($gmail_address);
+    $mail->Subject = $subject;
+    $mail->Body = $body;
+    $mail->isHTML(true);
+    try {
+        if ($mail->Send()) {
+            $check = "email send";
+        } else {
+            $check = "email isn't send";
+        }
+    } catch (Exception $e) {
+
+    }}
+
 
 
 //Gmail host with folder
@@ -136,7 +211,7 @@ $hostname = isset($_POST["folder"]);
 
 //Open the connection
 #$connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
-$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,'emoodlesmessage@gmail.com','moodle1234') or die('Cannot connect to Gmail: ' . imap_last_error());
+$connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,$gmail_address,$gmail_password) or die('Cannot connect to Gmail: ' . imap_last_error());
 
 
 //Grab all the emails inside the inbox
@@ -225,34 +300,9 @@ if($emails) {
         if ($index_plus==false || $index_point>$index_strudel){//there isn't plus in the mail
 
             //send mail to the address that we gets and tells the format isn't right
-            $mail=new PHPMailer();
-            $mail->IsSMTP(); // enable SMTP
-            $mail->SMTPDebug = 1;  //Enable verbose debug output
-            //$mail->isSMTP();                                            //Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-            $mail->Password = 'moodle1234';                               //SMTP password
-            $mail->Port = 465;
-            $mail->SMTPSecure = 'ssl';
-
-            $mail->AddAddress($fromaddr);
-
-            $mail->SetFrom("emoodlesmessage@gmail.com");
-            $mail->Subject = 'E-Moodle Syntax error mail ';
-            $mail->Body = 'The mail you send is not in the right format, please look at the right format again. ';
-            $mail->isHTML(true);
-
-            try {
-                if ($mail->Send()) {
-                    $check = "email send";
-                } else {
-                    $check = "email isn't send";
-                }
-            } catch (Exception $e) {
-
-            }
-
+            $subject_to_send = 'E-Moodle Syntax error mail ';
+            $body_to_send = 'The mail you send is not in the right format, please look at the right format again. ';
+            Error_massage($subject_to_send,$body_to_send,$fromaddr);
         }
         else{
 
@@ -382,41 +432,12 @@ END;
                     $list_of_emails[] = $ans;
                 }
 
+                $subject_to_send="E-Moodle :: New message from forum {$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_base64}";
+                $replay_email="$gmail_username+reply.$course.$forum.$discussion.$id_posts@gmail.com";
                 foreach($list_of_emails as $ans) {
 
-                    $mail = new PHPMailer();
-                    $mail->addReplyTo("emoodlesmessage+reply.$course.$forum.$discussion.$id_posts@gmail.com", 'Information');
-                    $mail->IsSMTP(); // enable SMTP
-                    $mail->SMTPDebug = 1;  //Enable verbose debug output
-                    //$mail->isSMTP();                                            //Send using SMTP
-                    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                    $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                    $mail->Password = 'moodle1234';                               //SMTP password
-                    $mail->Port = 465;
-                    $mail->SMTPSecure = 'ssl';
-
-                    $mail->AddAddress($ans['email']);
-
-                    $mail->SetFrom("emoodlesmessage@gmail.com");
-                    $mail->Subject = "E-Moodle :: New message from forum {$course}.{$forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_base64}";
-                    $mail->Body = $fmessage;
-                    $mail->isHTML(true);
-
-                    try {
-                        if ($mail->Send()) {
-                            $check = "email send";
-                        } else {
-                            $check = "email isn't send";
-                        }
-                    } catch (Exception $e) {
-
-                    }
+                    correct_massage($subject_to_send,$fmessage,$ans['email'],$replay_email);
                 }
-
-
-
-
             }
             else {
 
@@ -445,32 +466,10 @@ END;
                 if($enrolled!='X'){ // isn't participate
 
                     //send mail to the address that we gets and tells the format isn't right
-                    $mail=new PHPMailer();
-                    $mail->IsSMTP(); // enable SMTP
-                    $mail->SMTPDebug = 1;  //Enable verbose debug output
-                    // $mail->isSMTP();                                            //Send using SMTP
-                    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                    $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                    $mail->Password = 'moodle1234';                               //SMTP password
-                    $mail->Port = 465;
-                    $mail->SMTPSecure = 'ssl';
+                    $subject_to_send = "E-Moodle incorrect course number  ";
+                    $body_to_send = "You are not participate in course number {$num_course} , please check your courses number again ";
+                    Error_massage($subject_to_send,$body_to_send,$fromaddr);
 
-                    $mail->AddAddress($fromaddr);
-
-                    $mail->SetFrom("emoodlesmessage@gmail.com");
-                    $mail->Subject = "E-Moodle incorrect course number  ";
-                    $mail->Body = "You are not participate in course number {$num_course} , please check your courses number again ";
-                    $mail->isHTML(true);
-                    try {
-                        if ($mail->Send()) {
-                            $check = "email send";
-                        } else {
-                            $check = "email isn't send";
-                        }
-                    } catch (Exception $e) {
-
-                    }
 
                 }
                 else{
@@ -487,33 +486,10 @@ END;
                         //we will send an error mail
 
                         //send mail to the address that we gets and tells the format isn't right
-                        $mail=new PHPMailer();
-                        $mail->IsSMTP(); // enable SMTP
-                        $mail->SMTPDebug = 1;  //Enable verbose debug output
-                        // $mail->isSMTP();                                            //Send using SMTP
-                        $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                        $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                        $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                        $mail->Password = 'moodle1234';                               //SMTP password
-                        $mail->Port = 465;
-                        $mail->SMTPSecure = 'ssl';
-
-                        $mail->AddAddress($fromaddr);
-
-                        $mail->SetFrom("emoodlesmessage@gmail.com");
-                        $mail->Subject = "E-Moodle incorrect course number  ";
-                        $mail->Body = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
+                        $subject_to_send = "E-Moodle incorrect course number  ";
+                        $body_to_send = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
                     forum number again ";
-                        $mail->isHTML(true);
-                        try {
-                            if ($mail->Send()) {
-                                $check = "email send";
-                            } else {
-                                $check = "email isn't send";
-                            }
-                        } catch (Exception $e) {
-
-                        }
+                        Error_massage($subject_to_send,$body_to_send,$fromaddr);
 
                     }
                     else {
@@ -651,38 +627,11 @@ END;
                             $list_of_emails[] = $ans;
                         }
 
+
+                        $subject_to_send="E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
+                        $replay_email="$gmail_username+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com";
                         foreach ($list_of_emails as $ans) {
-
-                            $mail = new PHPMailer();
-                            $mail->addReplyTo("emoodlesmessage+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com", 'Information');
-                            $mail->IsSMTP(); // enable SMTP
-                            $mail->SMTPDebug = 1;  //Enable verbose debug output
-                            //$mail->isSMTP();                                            //Send using SMTP
-                            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                            $mail->Username = 'emoodlesmessage@gmail.com';                     //SMTP username
-                            $mail->Password = 'moodle1234';                               //SMTP password
-                            $mail->Port = 465;
-                            $mail->SMTPSecure = 'ssl';
-
-                            $mail->AddAddress($ans['email']);
-
-                            $mail->SetFrom("emoodlesmessage@gmail.com");
-                            $mail->Subject = "E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
-                            $mail->Body = $fmessage;
-                            $mail->isHTML(true);
-
-                            try {
-                                if ($mail->Send()) {
-                                    $check = "email send";
-                                } else {
-                                    $check = "email isn't send";
-                                }
-                            } catch (Exception $e) {
-
-                            }
-
-
+                            correct_massage($subject_to_send,$fmessage,$ans['email'],$replay_email);
                         }
 
 
