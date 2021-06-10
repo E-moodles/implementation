@@ -35,19 +35,29 @@ ini_set('display_errors', 1);
 session_start();
 session_start();
 
+//first initialize your details
+//Your gmail email address and password for the code to run
+$gmail_username='emoodlesmessage';
+$gmail_address ='emoodlesmessage@gmail.com';
+$gmail_password='moodle1234';
+
+//your DB
+$hostname_DB='127.0.0.1';
+$username_DB='root';
+$DB='moodle';
+$password_DB=null;
+$port_DB='3306';
+
 //connect to mysql
 //connect to mysql
 //$mysqli  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
 //connect to mysql for students details
 //$mysqli2  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
-$mysqli3  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
-$mysqli4  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
-$mysqli5  = mysqli_connect('127.0.0.1', 'root', null, 'moodle', '3306');
+$mysqli3  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
+$mysqli4  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
+$mysqli5  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
 
-//Your gmail email address and password for the code to run
-$gmail_username='emoodlesmessage';
- $gmail_address ='emoodlesmessage@gmail.com';
- $gmail_password='moodle1234';
+
 
 
 //Your gmail email address and password
