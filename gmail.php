@@ -29,9 +29,7 @@ use PHPMailer\PHPMailer\SMTP;
 
 require 'vendor/autoload.php';
 
-//phpinfo();
 
-ini_set('display_errors', 1);
 session_start();
 session_start();
 
@@ -44,8 +42,8 @@ $gmail_password='moodle1234';
 //your DB
 $hostname_DB='127.0.0.1';
 $username_DB='root';
-$DB='moodle';
-$password_DB=null;
+$DB='moodle1';
+$password_DB='shani3003';
 $port_DB='3306';
 
 //connect to mysql
@@ -161,7 +159,7 @@ function Error_massage($subject, $body, $email_address)
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = $gmail_password;                               //SMTP password
-    $mail->Port = 587;
+    $mail->Port = 456;
     $mail->SMTPSecure = 'ssl';
 
     $mail->AddAddress($email_address);
@@ -182,7 +180,7 @@ function Error_massage($subject, $body, $email_address)
     }
 }
 
-//send masseg with areplay addres ,
+//send masseg with a replay address ,
 function correct_massage($subject, $body, $email_adress, $email_replay)
 {
     global $gmail_address,$gmail_password;
@@ -195,7 +193,7 @@ function correct_massage($subject, $body, $email_adress, $email_replay)
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = 'moodle1234';                               //SMTP password
-    $mail->Port = 587;
+    $mail->Port = 456;
     $mail->SMTPSecure = 'ssl';
 
     $mail->AddAddress($email_adress);
@@ -407,7 +405,6 @@ if($emails) {
                     <h4>Subject for mail :</h4> $subject_from_DB <br><br>
                     <h4>fMessage test :</h4> $fmessage <br><br>
                     <h4>Mess test:</h4> $mess <br><br>
-
                     </div></div>
 END;
 
@@ -552,7 +549,7 @@ END;
                         }
 
 
-                       // $fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
+                        // $fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
                         $mess= working_on_message("emoodlesmessage@gmail.com",$fmessage);
 
                         $fmessage=$mess;
@@ -568,16 +565,13 @@ END;
                     <h4>Message:</h4> $message <br><br>
                     <h4>fMessage test :</h4> $fmessage <br><br>
                     <h4>Mess test:</h4> $mess<br><br>
-
                     
-
                     <h4>Date:</h4> $date <br><br>
                     <h4>Sender:</h4> $fromaddr <br><br>
                     <h4>ID:</h4> $userid <br><br>
                     <h4>num of course:</h4> $num_course <br><br>
                     <h4>num of forum:</h4> $num_forum <br><br>
                     <h4>reload !</h4>  <br><br>
-
                     </div></div>
 END;
 
@@ -683,4 +677,9 @@ echo "Messages after expunge: " . $check->Nmsgs . "<br />\n";
 // close the connection
 imap_close($connection);
 
-?>
+//starting the script every 1 min
+?><script>
+    setTimeout(function () { window.location.reload(); }, 1*60*1000);
+    // just show current time stamp to see time of last refresh.
+    document.write(new Date());
+</script>
