@@ -147,7 +147,7 @@ function working_on_message($email_to , $message){
 
 // //send mail to the address that we gets and tells the format isn't right
 //input to send subject ,body and email_address of the sender
-function Error_massage($subject, $body, $email_address)
+function Error_message($subject, $body, $email_address)
 {
     global $gmail_address,$gmail_password;
     //send mail to the address that we gets and tells the format isn't right
@@ -159,8 +159,8 @@ function Error_massage($subject, $body, $email_address)
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = $gmail_password;                               //SMTP password
-    $mail->Port = 456;
-    $mail->SMTPSecure = 'ssl';
+    $mail->Port = 456 ;
+    $mail->SMTPSecure =  'ssl';
 
     $mail->AddAddress($email_address);
 
@@ -181,7 +181,7 @@ function Error_massage($subject, $body, $email_address)
 }
 
 //send masseg with a replay address ,
-function correct_massage($subject, $body, $email_adress, $email_replay)
+function correct_message($subject, $body, $email_adress, $email_replay)
 {
     global $gmail_address,$gmail_password;
     $mail = new PHPMailer();
@@ -193,7 +193,7 @@ function correct_massage($subject, $body, $email_adress, $email_replay)
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = 'moodle1234';                               //SMTP password
-    $mail->Port = 456;
+    $mail->Port = 456 ;
     $mail->SMTPSecure = 'ssl';
 
     $mail->AddAddress($email_adress);
@@ -310,7 +310,7 @@ if($emails) {
             //send mail to the address that we gets and tells the format isn't right
             $subject_to_send = 'E-Moodle Syntax error mail ';
             $body_to_send = 'The mail you send is not in the right format, please look at the right format again. ';
-            Error_massage($subject_to_send,$body_to_send,$fromaddr);
+            Error_message($subject_to_send,$body_to_send,$fromaddr);
         }
         else{
 
@@ -443,7 +443,7 @@ END;
                 $replay_email="$gmail_username+reply.$course.$forum.$discussion.$id_posts@gmail.com";
                 foreach($list_of_emails as $ans) {
 
-                    correct_massage($subject_to_send,$fmessage,$ans['email'],$replay_email);
+                    correct_message($subject_to_send,$fmessage,$ans['email'],$replay_email);
                 }
             }
             else {
@@ -475,7 +475,7 @@ END;
                     //send mail to the address that we gets and tells the format isn't right
                     $subject_to_send = "E-Moodle incorrect course number  ";
                     $body_to_send = "You are not participate in course number {$num_course} , please check your courses number again ";
-                    Error_massage($subject_to_send,$body_to_send,$fromaddr);
+                    Error_message($subject_to_send,$body_to_send,$fromaddr);
 
 
                 }
@@ -496,7 +496,7 @@ END;
                         $subject_to_send = "E-Moodle incorrect course number  ";
                         $body_to_send = "The number of forum {$num_forum}  you enter isn't exist in course number : {$num_course} , please check your courses number and 
                     forum number again ";
-                        Error_massage($subject_to_send,$body_to_send,$fromaddr);
+                        Error_message($subject_to_send,$body_to_send,$fromaddr);
 
                     }
                     else {
@@ -635,7 +635,7 @@ END;
                         $subject_to_send="E-Moodle :: New message from forum {$num_course}.{$num_forum} , course name :{$cousre_name},email : {$fromaddr}, subject :{$subject_for_mail}";
                         $replay_email="$gmail_username+reply.$num_course.$num_forum.$id_diss.$id_posts@gmail.com";
                         foreach ($list_of_emails as $ans) {
-                            correct_massage($subject_to_send,$fmessage,$ans['email'],$replay_email);
+                            correct_message($subject_to_send,$fmessage,$ans['email'],$replay_email);
                         }
 
 
