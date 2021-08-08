@@ -47,10 +47,6 @@ $password_DB='shani3003';
 $port_DB='3306';
 
 //connect to mysql
-//connect to mysql
-//$mysqli  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
-//connect to mysql for students details
-//$mysqli2  = mysqli_connect('127.0.0.1', 'root', "", 'moodle', '3306');
 $mysqli3  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
 $mysqli4  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
 $mysqli5  = mysqli_connect($hostname_DB, $username_DB, $password_DB, $DB, $port_DB);
@@ -152,14 +148,13 @@ function Error_message($subject, $body, $email_address)
     global $gmail_address,$gmail_password;
     //send mail to the address that we gets and tells the format isn't right
     $mail=new PHPMailer();
-    $mail->IsSMTP(); // enable SMTP
     $mail->SMTPDebug = 1;  //Enable verbose debug output
-    //$mail->isSMTP();                                            //Send using SMTP
+    $mail->isSMTP();                                            //Send using SMTP
     $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = $gmail_password;                               //SMTP password
-    $mail->Port = 456 ;
+    $mail->Port = 465 ;
     $mail->SMTPSecure =  'ssl';
 
     $mail->AddAddress($email_address);
@@ -186,14 +181,13 @@ function correct_message($subject, $body, $email_adress, $email_replay)
     global $gmail_address,$gmail_password;
     $mail = new PHPMailer();
     $mail->addReplyTo($email_replay, 'Replay');
-    $mail->IsSMTP(); // enable SMTP
     $mail->SMTPDebug = 1;  //Enable verbose debug output
-    //$mail->isSMTP();                                            //Send using SMTP
+    $mail->isSMTP();                                            //Send using SMTP
     $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
     $mail->SMTPAuth = true;                                   //Enable SMTP authentication
     $mail->Username = $gmail_address;                     //SMTP username
     $mail->Password = 'moodle1234';                               //SMTP password
-    $mail->Port = 456 ;
+    $mail->Port = 465 ;
     $mail->SMTPSecure = 'ssl';
 
     $mail->AddAddress($email_adress);
@@ -218,7 +212,6 @@ function correct_message($subject, $body, $email_adress, $email_replay)
 $hostname = isset($_POST["folder"]);
 
 //Open the connection
-#$connection = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
 $connection = imap_open('{imap.gmail.com:993/imap/ssl}INBOX' ,$gmail_address,$gmail_password) or die('Cannot connect to Gmail: ' . imap_last_error());
 
 
@@ -278,13 +271,7 @@ if($emails) {
             $message = imap_fetchbody($connection, $email_number, 1);
         }
 
-        //shani shalel add :
         $tomess=$headerinfo->{'toaddress'};
-
-//      $from = $overview[0]->from;
-//
-//      $header = imap_headerinfo($inbox, $x);
-//      $fromaddress = $header->from[0]->mailbox . "@" . $header->from[0]->host;
 
 
         $fromaddr = $headerinfo->from[0]->mailbox . "@" . $headerinfo->from[0]->host;
@@ -295,8 +282,6 @@ if($emails) {
         $date = $headerinfo->{'date'};
         $fmessage = quoted_printable_decode($message);
 
-//        $check="not send";
-//
 
 
         //getting the number of the course em@gmail.
@@ -387,9 +372,8 @@ if($emails) {
 
                 $subject_base64=$at_start.$subject_base64.$at_end;
 
-                //cutt the message without history
+                //cut the message without history
 
-                //$fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
 
                 $mess= working_on_message("emoodlesmessage@gmail.com",$fmessage);
                 $fmessage=$mess;
@@ -549,7 +533,6 @@ END;
                         }
 
 
-                        // $fmessage=working_on_message("emoodlesmessage@gmail.com",$fmessage);
                         $mess= working_on_message("emoodlesmessage@gmail.com",$fmessage);
 
                         $fmessage=$mess;
@@ -658,8 +641,7 @@ END;
 
 
 
-        // }
-        //shani shalel add this
+
         imap_delete($connection, $email_number);
         $check = imap_mailboxmsginfo($connection);
         echo "Messages after  delete: " . $check->Nmsgs . "<br />\n";
