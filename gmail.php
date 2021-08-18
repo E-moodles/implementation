@@ -35,15 +35,15 @@ session_start();
 
 //first initialize your details
 //Your gmail email address and password for the code to run
-$gmail_username='emoodlesmessage';
-$gmail_address ='emoodlesmessage@gmail.com';
-$gmail_password='moodle1234';
+$gmail_username=...
+$gmail_address =...
+$gmail_password=...
 
 //your DB
 $hostname_DB='127.0.0.1';
 $username_DB='root';
-$DB='moodle1';
-$password_DB='shani3003';
+$DB=...
+$password_DB=...
 $port_DB='3306';
 
 //connect to mysql
