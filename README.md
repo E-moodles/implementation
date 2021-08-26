@@ -3,7 +3,7 @@ At this point we open a mail in gmail server that is called : emoodlesmessage@gm
 emoodlesmessage+"name of universty or number"+"number of course" +@gmail.com. example: emoodlesmessage+ariel56748@gmail.com -> mail for course number : 56748 at Ariel University. 
 
 
-emoodlesmessage+"name of universty or number"+"number of course" +@gmail.com. example: emoodlesmessage+ariel56748@gmail.com -> mail for course number : 56748 at Ariel University.
+"name of universty or number"+"number of course" +"."+"number of the forum" +@gmail.com. example: emoodlesmessage+13.6@gmail.com -> mail for course number : 13 and number of forum 6.
 
 # About the script :
 These scripts will grab a folder of your choosing from gmail and insert it into a MySQL table. 
